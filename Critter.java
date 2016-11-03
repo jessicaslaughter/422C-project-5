@@ -2,6 +2,10 @@ package assignment5;
 
 import java.util.List;
 
+import assignment5.Critter;
+import assignment5.InvalidCritterException;
+import assignment5.Params;
+
 public abstract class Critter {
 	/* NEW FOR PROJECT 5 */
 	public enum CritterShape {
@@ -35,7 +39,8 @@ public abstract class Critter {
 	private static String myPackage;
 	private	static List<Critter> population = new java.util.ArrayList<Critter>();
 	private static List<Critter> babies = new java.util.ArrayList<Critter>();
-
+	static List<Integer> moved = new java.util.ArrayList<Integer>();
+	
 	// Gets the package name.  This assumes that Critter and its subclasses are all in the same package.
 	static {
 		myPackage = Critter.class.getPackage().toString().split(" ")[1];
@@ -65,17 +70,253 @@ public abstract class Critter {
 	private int x_coord;
 	private int y_coord;
 	
-	protected final void walk(int direction) {}
+	/**
+	 * This private method moves a critter in a specified direction
+	 * for a specified number of steps.
+	 * @param direction is the direction to be moved in (0-7)
+	 * @param numSteps is the number of steps to take in the direction
+	 */
+	private final void moveCritter(int direction, int numSteps) {
+		switch (direction) {
+			case 0: this.x_coord = this.x_coord + numSteps;
+					break;
+			case 1: this.x_coord = this.x_coord + numSteps;
+					this.y_coord = this.y_coord - numSteps;
+					break;
+			case 2: this.y_coord = this.y_coord - numSteps;
+					break;
+			case 3: this.x_coord = this.x_coord - numSteps;
+					this.y_coord = this.y_coord - numSteps;
+					break;
+			case 4: this.x_coord = this.x_coord - numSteps;
+					break;
+			case 5: this.x_coord = this.x_coord - numSteps;
+					this.y_coord = this.y_coord + numSteps;
+					break;
+			case 6: this.y_coord = this.y_coord + numSteps;
+					break;
+			case 7: this.x_coord = this.x_coord + numSteps;
+					this.y_coord = this.y_coord + numSteps;
+					break;
+			default: break;
+		}
+		
+		if (this.x_coord > Params.world_width - 1) { // relocate to left side
+			this.x_coord = this.x_coord - Params.world_width;
+		}
+		else if (this.x_coord < 0) { // relocate to right side
+			this.x_coord = this.x_coord + Params.world_width;
+		}
+		if (this.y_coord > Params.world_height - 1) { // relocate to top
+			this.y_coord = this.y_coord - Params.world_height;
+		}
+		else if (this.y_coord < 0) { // relocate to bottom
+			this.y_coord = this.y_coord + Params.world_height;
+		}
+	}
 	
-	protected final void run(int direction) {}
+	private boolean hasMoved; // true if Critter has moved in this time step
 	
-	protected final void reproduce(Critter offspring, int direction) {}
+	/**
+	 * This method moves a Critter by one position in a specified direction.
+	 * @param direction is the direction to move the Critter in
+	 */
+	protected final void walk(int direction) {
+		this.energy = this.energy - Params.walk_energy_cost;
+		if (hasMoved) {
+			return;
+		}
+		this.moveCritter(direction, 1);
+		hasMoved = true;
+	}
+	
+	/**
+	 * This method moves a Critter by two positions in a specified direction.
+	 * @param direction is the direction to move the Critter in
+	 */
+	protected final void run(int direction) {
+		this.energy = this.energy - Params.run_energy_cost;
+		if (hasMoved) {
+			return;
+		}
+		this.moveCritter(direction, 2);
+		hasMoved = true;
+	}
+	
+	/**
+	 * This method determines whether a parent reproduces,
+	 * and if so, sets the offspring's energy and position
+	 * and halves the parent's energy.
+	 * @param offspring is the new Critter
+	 * @param direction is the direction the offspring should be placed from the parent
+	 */
+	protected final void reproduce(Critter offspring, int direction) {
+		if (this.energy < Params.min_reproduce_energy) {
+			return; // not enough energy
+		}
+		offspring.energy = this.energy / 2; // round down
+		this.energy = this.energy / 2 + this.energy % 2; // round up
+		offspring.x_coord = this.x_coord;
+		offspring.y_coord = this.y_coord;
+		offspring.moveCritter(direction, 1); // move offspring adjacent to parent
+		babies.add(offspring);
+	}
 
 	public abstract void doTimeStep();
 	public abstract boolean fight(String oponent);
 	
 	
-	public static void worldTimeStep() {}
+	public static void worldTimeStep() {
+		// do time step
+		for(int crit = 0; crit < population.size(); crit+=1){
+			population.get(crit).doTimeStep();
+		}
+		
+		moved.clear();
+		
+		// encounters
+		for(int crit = 0; crit < population.size()-1; crit+=1){
+			int Ax=population.get(crit).x_coord;
+			int Ay=population.get(crit).y_coord;
+			for(int compare = crit+1; compare < population.size(); compare+=1){
+				int Bx=population.get(compare).x_coord;
+				int By=population.get(compare).y_coord;
+				if((Ax == Bx) && (Ay == By)){
+					Boolean Afight = population.get(crit).fight(population.get(compare).toString());
+					Boolean Bfight = population.get(compare).fight(population.get(crit).toString());
+					if(population.get(crit).energy > 0 && population.get(compare).energy > 0){
+						if(!((Ax ==population.get(crit).x_coord)&&(Ay ==population.get(crit).y_coord)
+								&&(Bx ==population.get(compare).x_coord)&&(By ==population.get(compare).y_coord))){		//someone's position changed
+							if(!(Ax == population.get(crit).x_coord)&&(Ay == population.get(crit).y_coord)){		//A changed
+								moved.add(crit);
+								break;		//go to the next critter and add to the moved critters to check later
+							}
+							if(!(Bx == population.get(compare).x_coord)&&(By == population.get(compare).y_coord)){		//B changed
+								moved.add(compare);
+							}
+						}
+						else{		//still in the same position so they need to fight
+							Critter dead = encounter(population.get(crit), Afight, population.get(compare), Bfight);
+							if(dead == population.get(crit)){population.remove(crit);}
+							else{population.remove(compare);}
+						}
+					}
+					else if(population.get(crit).energy <= 0){
+						if(!(Bx == population.get(compare).x_coord)&&(By == population.get(compare).y_coord)){		//B changed
+							moved.add(compare);
+						}
+						population.remove(crit);
+						break;
+					}
+					else if(population.get(compare).energy <= 0){
+						if(!(Ax == population.get(crit).x_coord)&&(By == population.get(crit).y_coord)){		//B changed
+							moved.add(crit);
+						}
+						population.remove(compare);
+					}
+				}
+			}
+		}
+		int movedIncr = 0;
+		while(moved.size() > movedIncr){
+			int Ax=population.get(moved.get(movedIncr)).x_coord;
+			int Ay=population.get(moved.get(movedIncr)).y_coord;
+			for(int compare = 0; compare < population.size(); compare+=1){
+				if(compare!=moved.get(movedIncr)){		//compare with all the other critters
+					int Bx=population.get(compare).x_coord;
+					int By=population.get(compare).y_coord;
+					if((Ax == Bx) && (Ay == By)){		//if A and B are in the same space, then invoke fight()
+						Boolean Afight = population.get(moved.get(movedIncr)).fight(population.get(compare).toString());
+						Boolean Bfight = population.get(compare).fight(population.get(moved.get(movedIncr)).toString());
+						if(population.get(moved.get(movedIncr)).energy > 0 && population.get(compare).energy > 0){
+							if(!((Ax ==population.get(moved.get(movedIncr)).x_coord)&&(Ay ==population.get(moved.get(movedIncr)).y_coord)
+									&&(Bx ==population.get(compare).x_coord)&&(By ==population.get(compare).y_coord))){		//someone's position changed
+								if(!(Ax == population.get(moved.get(movedIncr)).x_coord)&&(Ay == population.get(moved.get(movedIncr)).y_coord)){		//A changed
+									moved.add(moved.get(movedIncr));
+									break;		//go to the next critter and add to the moved critters to check later
+								}
+								if(!(Bx == population.get(compare).x_coord)&&(By == population.get(compare).y_coord)){		//B changed
+									moved.add(compare);
+								}
+							}
+							else{		//still in the same position so they need to fight
+								Critter dead = encounter(population.get(moved.get(movedIncr)), Afight, population.get(compare), Bfight);
+								if(dead == population.get(moved.get(movedIncr))){population.remove(moved.get(movedIncr));}
+								else{population.remove(compare);}
+							}
+						}
+						else if(population.get(moved.get(movedIncr)).energy <= 0){
+							if(!(Bx == population.get(compare).x_coord)&&(By == population.get(compare).y_coord)){		//B changed
+								moved.add(compare);
+							}
+							population.remove(moved.get(movedIncr));
+							break;
+						}
+						else if(population.get(compare).energy <= 0){
+							if(!(Ax == population.get(moved.get(movedIncr)).x_coord)&&(By == population.get(moved.get(movedIncr)).y_coord)){		//B changed
+								moved.add(moved.get(movedIncr));
+							}
+							population.remove(compare);
+						}
+					}
+				}
+			}
+			movedIncr+=1;
+		}
+		
+		// generate algae
+		for(int i=0; i < Params.refresh_algae_count; i +=1){
+			try{
+				makeCritter("Algae");
+			}
+			catch(InvalidCritterException exception){
+				System.out.println("error processing: algae");
+			}
+		}
+		
+		// add babies to population
+		population.addAll(babies);
+		babies.clear();
+		
+		// remove dead critters
+		for(int crit = 0; crit < population.size(); crit+=1){
+			population.get(crit).energy -= Params.rest_energy_cost; // apply rest energy cost
+			if(population.get(crit).energy <= 0){
+				population.remove(crit);
+			}
+		}
+		
+		for (Critter crit : population) {
+			crit.hasMoved = false; // reset movement tracker
+		}
+	}
+	
+	/**
+	 * This method happens when A and B are still in the same place after fight()
+	 */
+	public static Critter encounter(Critter A, Boolean Afight, Critter B, Boolean Bfight){		//A is either from query or slower index and return the dead
+		int[] result = new int[2];
+		if(!Afight){		//A doesn't want to fight
+			result[0] = 0;
+		}
+		else{		//A wants to fight, get random number
+			result[0] = rand.nextInt(A.energy);
+		}
+		if(!Bfight){		//B doesn't want to fight
+			result[1] = 0;
+		}
+		else{		//B wants to fight, get random number
+			result[1] = rand.nextInt(B.energy);
+		}
+		if(result[0] > result[1]){		//A wins
+			A.energy += (B.energy/2);
+			return B;
+		}
+		else{		//B wins
+			B.energy += (A.energy/2);
+			return A;
+		}
+	}
 	
 	public static void displayWorld() {}
 	
@@ -83,14 +324,71 @@ public abstract class Critter {
 	 * critter_class_name must be the name of a concrete subclass of Critter, if not
 	 * an InvalidCritterException must be thrown
 	 */
-	public static void makeCritter(String critter_class_name) throws InvalidCritterException {}
-	
-	public static List<Critter> getInstances(String critter_class_name) throws InvalidCritterException {
-		return null;
+	public static void makeCritter(String critter_class_name) throws InvalidCritterException {
+		
+		
+		try{
+			//need to check input first
+			Critter c = (Critter) Class.forName(myPackage + "." + critter_class_name).newInstance();
+			//add to the collection
+			Critter.population.add(c);
+			//energy
+			c.energy=Params.start_energy;
+			//random position
+			c.x_coord = Critter.getRandomInt(Params.world_width);
+			c.y_coord = Critter.getRandomInt(Params.world_height);
+		}
+		catch(ClassNotFoundException|InstantiationException|IllegalAccessException exception){
+			throw new InvalidCritterException(critter_class_name);
+		}
 	}
 	
-	public static void runStats(List<Critter> critters) {}
+	/**
+	 * Gets a list of critters of a specific type.
+	 * @param critter_class_name What kind of Critter is to be listed.  Unqualified class name.
+	 * @return List of Critters.
+	 * @throws InvalidCritterException
+	 */
+	public static List<Critter> getInstances(String critter_class_name) throws InvalidCritterException {
+		List<Critter> result = new java.util.ArrayList<Critter>();
+		Class<?> critClass = null;
+		try {
+			critClass = Class.forName(myPackage + "." + critter_class_name);
+		}
+		catch (ClassNotFoundException e) {
+			throw new InvalidCritterException(critter_class_name);
+		}
+		for (Critter crit : population) {
+			if (critClass.isInstance(crit)) {
+				result.add(crit);
+			}
+		}
+		return result;
+	}
 	
+	/**
+	 * Prints out how many Critters of each type there are on the board.
+	 * @param critters List of Critters.
+	 */
+	public static void runStats(List<Critter> critters) {
+		System.out.print("" + critters.size() + " critters as follows -- ");
+		java.util.Map<String, Integer> critter_count = new java.util.HashMap<String, Integer>();
+		for (Critter crit : critters) {
+			String crit_string = crit.toString();
+			Integer old_count = critter_count.get(crit_string);
+			if (old_count == null) {
+				critter_count.put(crit_string,  1);
+			} else {
+				critter_count.put(crit_string, old_count.intValue() + 1);
+			}
+		}
+		String prefix = "";
+		for (String s : critter_count.keySet()) {
+			System.out.print(prefix + s + ":" + critter_count.get(s));
+			prefix = ", ";
+		}
+		System.out.println();		
+	}
 	/* the TestCritter class allows some critters to "cheat". If you want to 
 	 * create tests of your Critter model, you can create subclasses of this class
 	 * and then use the setter functions contained here. 
