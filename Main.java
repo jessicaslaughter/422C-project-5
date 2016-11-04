@@ -171,6 +171,9 @@ public class Main extends Application{
 		       	 
 	            @Override
 	            public void handle(ActionEvent event) {
+	            	numSteps.clear();
+	            	numCritter.clear();
+	            	comboBox.getSelectionModel().clearSelection();
 	                Critter.displayWorld();
 	            }
 	        });
