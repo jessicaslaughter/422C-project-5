@@ -34,6 +34,7 @@ import javafx.stage.Stage;
  */
 public class Main extends Application{
 	static GridPane grid = new GridPane();
+	static GridPane modelGrid = new GridPane();
 	static int steps =0;
 	
 	public static void main(String[] args){
@@ -48,10 +49,16 @@ public class Main extends Application{
 			grid.setVgap(5);
 			grid.setGridLinesVisible(false);
 			grid.setPadding(new Insets(10, 10, 10, 10));
-			Scene scene = new Scene(grid, 450, 350);
+			Scene scene = new Scene(grid, 400, 400);
 			Text scenetitle = new Text("Critter World Controller");
 			scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 15));
 			grid.add(scenetitle, 0, 0, 20, 2);
+			
+			Stage model = new Stage();
+			model.setTitle("Model");
+			Scene modelScene = new Scene(modelGrid, 500, 500);
+			model.setScene(modelScene);
+        	model.show();
 			
 			Label name = new Label("Critter Name:");
 			grid.add(name, 1, 4, 2, 1);
@@ -159,6 +166,15 @@ public class Main extends Application{
 			GridPane.setHalignment(displayButt, HPos.LEFT); // To align horizontally in the cell
 			GridPane.setValignment(displayButt, VPos.BOTTOM); // To align vertically in the cell
 	        grid.add(displayButt, 5, 15);
+	        
+	        displayButt.setOnAction(new EventHandler<ActionEvent>() {
+		       	 
+	            @Override
+	            public void handle(ActionEvent event) {
+	                Critter.displayWorld();
+	            }
+	        });
+	        
 	        
 	        Label times = new Label("Time: ");
 	        grid.add(times, 1, 15, 2, 1);
