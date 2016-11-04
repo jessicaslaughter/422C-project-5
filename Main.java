@@ -10,10 +10,19 @@
  * Fall 2016
  */
 package assignment5; // cannot be in default package
-import javafx.application.Application; 
+import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.geometry.HPos;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Scene; 
 import javafx.scene.control.*; 
-import javafx.scene.layout.*; 
+import javafx.scene.layout.*;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 /*
  * Usage: java <pkgname>.Main <input file> test
@@ -22,6 +31,7 @@ import javafx.stage.Stage;
  */
 public class Main extends Application{
 	static GridPane grid = new GridPane();
+	static int steps =0;
 	
 	public static void main(String[] args){
 		launch(args);
@@ -30,178 +40,94 @@ public class Main extends Application{
 	@Override
 	public void start(Stage primaryStage){
 		try{
-			Scene scene = new Scene(grid, 300, 300);
-			primaryStage.setScene(scene);
+			primaryStage.setTitle("Set Up Critter World");
+			grid.setHgap(5);
+			grid.setVgap(5);
+			grid.setGridLinesVisible(false);
+			grid.setPadding(new Insets(10, 10, 10, 10));
+			Scene scene = new Scene(grid, 500, 550);
+			Text scenetitle = new Text("Critter World Controller");
+			scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 15));
+			grid.add(scenetitle, 0, 0, 20, 2);
+			
+			Label name = new Label("Critter Name:");
+			grid.add(name, 1, 4, 2, 1);
+			
+			ObservableList<String> options = 
+				    FXCollections.observableArrayList(
+				        "Craig",
+				        "Algae"
+				    );
+			ComboBox comboBox = new ComboBox(options);
+			grid.add(comboBox, 20, 4);
+			GridPane.setHalignment(comboBox, HPos.CENTER); // To align horizontally in the cell
+			GridPane.setValignment(comboBox, VPos.BOTTOM); // To align vertically in the cell
+
+			Label num = new Label("Num of Critters:");
+			grid.add(num, 1, 5, 2, 1);
+			TextField numCritter = new TextField();
+			grid.add(numCritter, 20, 5);
+			Button butt = new Button("Add critters");
+			GridPane.setHalignment(butt, HPos.RIGHT); // To align horizontally in the cell
+			GridPane.setValignment(butt, VPos.BOTTOM); // To align vertically in the cell
+	        grid.add(butt, 20, 6);
+	        
+	        Label line = new Label(" ___________________________________________________________");
+	        grid.add(line, 1, 10, 20, 1);
+	        
+			Label numStep = new Label("Num of Steps:");
+			grid.add(numStep, 1, 16, 2, 1);
+			TextField numSteps = new TextField();
+			grid.add(numSteps, 20, 16);
+			Button buttStep = new Button("Time Steps");
+			GridPane.setHalignment(buttStep, HPos.RIGHT); // To align horizontally in the cell
+			GridPane.setValignment(buttStep, VPos.BOTTOM); // To align vertically in the cell
+	        grid.add(buttStep, 20, 17);
+	        
+			Button displayButt = new Button("Display World");
+			GridPane.setHalignment(displayButt, HPos.RIGHT); // To align horizontally in the cell
+			GridPane.setValignment(displayButt, VPos.BOTTOM); // To align vertically in the cell
+	        grid.add(displayButt, 1, 20);
+	        
+	        Label times = new Label("Time: ");
+	        grid.add(times, 19, 20, 2, 1);
+	        GridPane.setHalignment(times, HPos.LEFT); // To align horizontally in the cell
+			GridPane.setValignment(times, VPos.CENTER); // To align vertically in the cell
+	        
+			Label timesNum = new Label(String.valueOf(steps));
+	        grid.add(timesNum, 20, 20, 1, 1);
+	        GridPane.setHalignment(timesNum, HPos.CENTER); // To align horizontally in the cell
+			GridPane.setValignment(timesNum, VPos.CENTER); // To align vertically in the cell
+	        
+			Button runButt = new Button("Run");
+			GridPane.setHalignment(runButt, HPos.LEFT); // To align horizontally in the cell
+			GridPane.setValignment(runButt, VPos.BOTTOM); // To align vertically in the cell
+	        grid.add(runButt, 1, 21);
+	        
+	        Slider slider = new Slider();
+	        slider.setMin(0);
+	        slider.setMax(10);
+	        slider.setValue(5);
+	        slider.setShowTickLabels(true);
+	        slider.setShowTickMarks(true);
+	        slider.setSnapToTicks(true);
+	        slider.setMajorTickUnit(5);
+	        slider.setMinorTickCount(5);
+	        slider.setBlockIncrement(1);
+	        grid.add(slider, 2, 21);
+			GridPane.setHalignment(slider, HPos.LEFT); // To align horizontally in the cell
+			GridPane.setValignment(slider, VPos.BOTTOM); // To align vertically in the cell
+
+			Button quitButt = new Button("Quit");
+			GridPane.setHalignment(quitButt, HPos.RIGHT); // To align horizontally in the cell
+			GridPane.setValignment(quitButt, VPos.BOTTOM); // To align vertically in the cell
+	        grid.add(quitButt, 20, 25);
+	        
 			primaryStage.show();
-			Painter.paint();
-			Stage secondStage = new Stage(); secondStage.setTitle("Second Stage");
-			// Stackpane is a controller 
-			StackPane pane = new StackPane(); 
-			Button butt = new Button("OK"); 
-			pane.getChildren().add(butt);
-			Scene secondScene = new Scene(pane, 200, 50); 
-			secondStage.setScene(secondScene); 
-			secondStage.show();
+			primaryStage.setScene(scene);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 	}
-/*
-    static Scanner kb;	// scanner connected to keyboard input, or input file
-    private static String inputFile;	// input file, used instead of keyboard input if specified
-    static ByteArrayOutputStream testOutputString;	// if test specified, holds all console output
-    private static String myPackage;	// package of Critter file.  Critter cannot be in default pkg.
-    private static boolean DEBUG = false; // Use it or not, as you wish!
-    static PrintStream old = System.out;	// if you want to restore output to console
 
-
-    // Gets the package name.  The usage assumes that Critter and its subclasses are all in the same package.
-    static {
-        myPackage = Critter.class.getPackage().toString().split(" ")[1];
-    }
-
-    *//**
-     * Main method.
-     * @param args args can be empty.  If not empty, provide two parameters -- the first is a file name, 
-     * and the second is test (for test output, where all output to be directed to a String), or nothing.
-     *//*
-    public static void main(String[] args) { 
-    	launch(args);
-        if (args.length != 0) {
-            try {
-                inputFile = args[0];
-                kb = new Scanner(new File(inputFile));			
-            } catch (FileNotFoundException e) {
-                System.out.println("USAGE: java Main OR java Main <input file> <test output>");
-                e.printStackTrace();
-            } catch (NullPointerException e) {
-                System.out.println("USAGE: java Main OR java Main <input file>  <test output>");
-            }
-            if (args.length >= 2) {
-                if (args[1].equals("test")) { // if the word "test" is the second argument to java
-                    // Create a stream to hold the output
-                    testOutputString = new ByteArrayOutputStream();
-                    PrintStream ps = new PrintStream(testOutputString);
-                    // Save the old System.out.
-                    old = System.out;
-                    // Tell Java to use the special stream; all console output will be redirected here from now
-                    System.setOut(ps);
-                }
-            }
-        } else { // if no arguments to main
-            kb = new Scanner(System.in); // use keyboard and console
-        }
-
-         Do not alter the code above for your submission. 
-         Write your code below. 
-       
-        while(true) {
-        	System.out.print("critters> ");
-        	String input = kb.nextLine();
-        	String[] in= input.split(" ");
-
-        	switch(in[0]){
-        		case "quit":
-        			if (in.length > 1) {
-        				System.out.println("error processing: " + input);
-        			}
-        			else {
-        				System.exit(0);
-        			}
-        		case "show":
-        			if (in.length > 1) {
-        				System.out.println("error processing: " + input);
-        			}
-        			else {
-        				Critter.displayWorld();
-        			}
-        			continue;
-        		case "step":
-        			if (in.length > 2) {
-        				System.out.println("error processing: " + input);
-        			}
-        			else {
-        				try{
-        					if(in.length > 1){
-        						int numOfSteps = Integer.parseInt(in[1]);
-        						for(int i=0; i < numOfSteps-1; i+=1){
-        							Critter.worldTimeStep();
-        						}	
-        					}
-        					Critter.worldTimeStep();
-        				}
-        				catch(NullPointerException|NumberFormatException exception){
-        					System.out.println("error processing: " + input);
-        				}
-        			}
-        			continue;
-        		case "seed":
-        			if (in.length > 2) {
-        				System.out.println("error processing: " + input);
-        			}
-        			else {
-        				try{
-        					long seedNum = Long.parseLong(in[1]);
-        					Critter.setSeed(seedNum);
-        				}
-        				catch(NullPointerException|NumberFormatException exception){
-        					System.out.println("error processing: " + input);
-        				}
-        			}
-        			continue;
-        		case "make":
-        			if (in.length > 3) {
-        				System.out.println("error processing: " + input);
-        			}
-        			else {
-        				try{
-        					if(in.length > 2){
-        						int numOfMake = Integer.parseInt(in[2]);
-        						if (numOfMake < 0) {
-        							System.out.println("error processing: " + input);
-        						}
-        						for(int i=0; i < numOfMake-1; i+=1){
-        							Critter.makeCritter(in[1]);
-        						}	
-        					}
-        					Critter.makeCritter(in[1]);
-        				}
-        				catch(InvalidCritterException|NullPointerException|NumberFormatException exception){
-        					System.out.println("error processing: " + input);
-        				}
-        			}
-        			continue;
-        		case "stats":
-        			if (in.length != 2) {
-        				System.out.println("error processing: " + input);
-        			}
-        			else {
-        				String inputClass = in[1];
-        				List<Critter> crits = null;
-        				try {
-        					crits = Critter.getInstances(inputClass);
-        				}
-        				catch (InvalidCritterException e) {
-        					System.out.println("error processing: " + input);
-        				}
-        				Class<?> critClass = null;
-        				Class<?>[] types = {List.class};
-        				try {
-        					critClass = Class.forName(myPackage + "." + inputClass);
-        					java.lang.reflect.Method runStats = critClass.getMethod("runStats", types);
-        					runStats.invoke(critClass, crits);
-        				}
-        				catch (Exception e) {
-        					System.out.println("error processing: " + input);
-        				}
-        			}
-        			continue;
-        		default:
-        			System.out.println("invalid command: " + input);
-        	}
-        }
-         Write your code above 
-
-
-    }*/
 }
