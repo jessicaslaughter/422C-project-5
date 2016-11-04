@@ -318,7 +318,12 @@ public abstract class Critter {
 		}
 	}
 	
-	public static void displayWorld() {}
+	public static void displayWorld() {
+		Painter.paint();
+		for (Critter crit : population) {
+			Painter.paintCritter(crit.x_coord, crit.y_coord, crit.viewShape(), crit.viewColor(), crit.viewOutlineColor(), crit.viewFillColor());
+		}
+	}
 	
 	/* create and initialize a Critter subclass
 	 * critter_class_name must be the name of a concrete subclass of Critter, if not
