@@ -44,7 +44,7 @@ public class Painter {
 	}
 	/* Paints the shape on a grid. */ 
 	public static void paint() { 
-		Main.grid.getChildren().clear();
+		Main.modelGrid.getChildren().clear();
 		paintGrid();
 	}
 	
@@ -69,7 +69,7 @@ public class Painter {
 			s.setFill(color);
 		}
 		s.setStroke(outline);
-		Main.grid.add(s, x, y);
+		Main.modelGrid.add(s, x, y);
 	}
 	
 	private static void paintGrid() {
@@ -78,7 +78,7 @@ public class Painter {
 				Shape s = new Rectangle(size, size); 
 				s.setFill(null);
 				s.setStroke(Color.BLACK); 
-				Main.grid.add(s, i, j);
+				Main.modelGrid.add(s, i, j);
 			}
 		}
 	}
