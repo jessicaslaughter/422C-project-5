@@ -20,13 +20,13 @@ public class Painter {
 		return s;
 	}
 	
-	public static int getSize() {
+	public static int setSize() {
 		// scale grid
 		if (Params.world_width <= 30 || Params.world_height <= 30) {
 			size = 20;
 		}
 		else if (Params.world_width <= 50 || Params.world_height <= 50) {
-			size = 12;
+			size = 10;
 		}
 		else if (Params.world_width <= 75 || Params.world_height <= 75) {
 			size = 8;
@@ -73,8 +73,8 @@ public class Painter {
 	}
 	
 	private static void paintGrid() {
-		for (int i = 0; i <= Main.grid.getWidth()/size; i++) {
-			for (int j = 0; j <= Main.grid.getHeight()/size; j++) {
+		for (int i = 0; i < Params.world_width; i++) {
+			for (int j = 0; j < Params.world_height; j++) {
 				Shape s = new Rectangle(size, size); 
 				s.setFill(null);
 				s.setStroke(Color.BLACK); 
