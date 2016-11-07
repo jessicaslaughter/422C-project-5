@@ -5,8 +5,12 @@ import javafx.scene.shape.*;
 
 public class Painter {
 	
-	/* Returns a square or a circle  *  */ 
 	static int size = 10;
+	/**
+	 * This method converts a CritterShape to a Shape object
+	 * @param shape is the CritterShape
+	 * @return the Shape version of the CritterShape
+	 */
 	static Shape getIcon(Critter.CritterShape shape) {
 		Shape s = null;
 		switch(shape) { 
@@ -25,6 +29,10 @@ public class Painter {
 		return s;
 	}
 	
+	/**
+	 * This method sets the size of each square in the grid
+	 * based on the size of the world.
+	 */
 	public static void setSize() {
 		// scale grid
 		if (Params.world_width <= 50) {
@@ -99,7 +107,10 @@ public class Painter {
 			size = 3;
 		}
 	}
-	/* Paints the shape on a grid. */ 
+	
+	/**
+	 * This method paints the grid.
+	 */
 	public static void paint() { 
 		Main.modelGrid.getChildren().clear();
 		paintGrid();
@@ -146,6 +157,9 @@ public class Painter {
 		Main.modelGrid.add(s, x, y);
 	}
 	
+	/**
+	 * This method adds the grid lines.
+	 */
 	private static void paintGrid() {
 		for (int i = 0; i < Params.world_width; i++) {
 			for (int j = 0; j < Params.world_height; j++) {
@@ -157,6 +171,10 @@ public class Painter {
 		}
 	}
 	
+	/**
+	 * This method draws a triangle shape.
+	 * @return the triangle
+	 */
 	private static Shape drawTriangle() {
 		Polygon triangle = new Polygon();
 		triangle.getPoints().addAll(new Double[]{
@@ -167,6 +185,10 @@ public class Painter {
 		return triangle;
 	}
 	
+	/**
+	 * This method draws a diamond shape.
+	 * @return the diamond
+	 */
 	private static Shape drawDiamond() {
 		Polygon diamond = new Polygon();
 		diamond.getPoints().addAll(new Double[]{
@@ -178,19 +200,21 @@ public class Painter {
 		return diamond;
 	}
 	
-	// need to fix
+	/**
+	 * This method draws a star shape.
+	 * @return the star
+	 */
 	private static Shape drawStar() {
 		Polygon star = new Polygon();
 		star.getPoints().addAll(new Double[]{
 				(double)size/2.0, 1.0,
-				(double)size/2.0 + (double)size/4.0, (double)size/3.0,
 				(double)size - 1.0, (double)size/2.0,
 				(double)size/2.0 + (double)size/4.0, (double)size/2.0 + 1.0,
-			    (double)size - 1.0, (double)size - 1.0,
+			    (double)size - 2.0, (double)size - 1.0,
 			    (double)size/2.0, (double)size/2.0 + (double)size/4.0,
-			    1.0, (double)size-1.0,
+			    2.0, (double)size-1.0,
 			    (double)size/2.0 - (double)size/4.0, (double)size/2.0 + 1.0,
-			    2.0, (double)size/2.0
+			    1.0, (double)size/2.0
 				
 		});
 		return star;
