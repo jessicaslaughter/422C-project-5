@@ -46,7 +46,58 @@ public abstract class Critter {
 		myPackage = Critter.class.getPackage().toString().split(" ")[1];
 	}
 	
-	protected String look(int direction, boolean steps) {return "";}
+	protected String look(int direction, boolean steps) {
+		int numSteps, newX = this.x_coord, newY = this.y_coord;
+		if (steps) {
+			numSteps = 2;
+		}
+		else {
+			numSteps = 1;
+		}
+		switch (direction) {
+		case 0: newX = newX + numSteps;
+		break;
+		case 1: newX = newX + numSteps;
+		newY = newY - numSteps;
+		break;
+		case 2: newY = newY - numSteps;
+		break;
+		case 3: newX = newX - numSteps;
+		newY = newY - numSteps;
+		break;
+		case 4: newX = newX - numSteps;
+		break;
+		case 5: newX = newX - numSteps;
+		newY = newY + numSteps;
+		break;
+		case 6: newY = newY + numSteps;
+		break;
+		case 7: newX = newX + numSteps;
+		newY = newY + numSteps;
+		break;
+		default: break;
+		}
+
+		if (newX > Params.world_width - 1) { // relocate to left side
+			newX = newX - Params.world_width;
+		}
+		else if (newX < 0) { // relocate to right side
+			newX = newX + Params.world_width;
+		}
+		if (newY> Params.world_height - 1) { // relocate to top
+			newY = newY - Params.world_height;
+		}
+		else if (newY < 0) { // relocate to bottom
+			newY = newY + Params.world_height;
+		}
+
+		for (Critter c : population) {
+			if (c.x_coord == newX && c.y_coord == newY) {
+				return this.toString();
+			}
+		}
+		return null;
+	}
 	
 	/* rest is unchanged from Project 4 */
 	
