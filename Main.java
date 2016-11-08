@@ -39,6 +39,7 @@ import javafx.stage.Stage;
 public class Main extends Application{
 	static GridPane grid = new GridPane();
 	static GridPane modelGrid = new GridPane();
+	static GridPane statsBox = new GridPane();
 	static int steps =0;
 	
 	public static void main(String[] args){
@@ -64,7 +65,19 @@ public class Main extends Application{
 			Scene modelScene = new Scene(modelGrid, Params.world_width*(Painter.size+1), Params.world_height*(Painter.size+1));
 			model.setScene(modelScene);
         	model.show();
+        	
+			Stage statsView = new Stage();
+			statsView.setTitle("Stats");
+			Scene statsViewScene = new Scene(statsBox, 450, 400);
+			statsView.setScene(statsViewScene);
+        	statsView.show();
 			
+	        final Text statsText = new Text();
+	        statsBox.add(statsText, 5, 6, 20, 1);
+			GridPane.setHalignment(statsText, HPos.CENTER); // To align horizontally in the cell
+			GridPane.setValignment(statsText, VPos.BOTTOM); // To align vertically in the cell
+        	
+        	
 			Label name = new Label("Critter Name:");
 			grid.add(name, 1, 4, 2, 1);
 			
@@ -176,6 +189,7 @@ public class Main extends Application{
 	                    actiontarget3.setFill(Color.FIREBRICK);
 	                    actiontarget3.setText("Please select number of seeds");
 	                }
+	                numSeeds.clear();
 	            }
 	        });
 	        
@@ -198,7 +212,7 @@ public class Main extends Application{
 			Button displayButt = new Button("Display World");
 			GridPane.setHalignment(displayButt, HPos.RIGHT); // To align horizontally in the cell
 			GridPane.setValignment(displayButt, VPos.BOTTOM); // To align vertically in the cell
-	        grid.add(displayButt, 14, 0, 1, 1);
+	        grid.add(displayButt, 15, 0, 1, 1);
 	        
 	        displayButt.setOnAction(new EventHandler<ActionEvent>() {
 		       	 
@@ -217,44 +231,73 @@ public class Main extends Application{
 	        
 	        final Text timesNum = new Text();
 	        timesNum.setText(String.valueOf(steps));
-	        grid.add(timesNum, 2, 15, 1, 1);
+	        grid.add(timesNum, 4, 15, 1, 1);
 			GridPane.setHalignment(timesNum, HPos.LEFT); // To align horizontally in the cell
 			GridPane.setValignment(timesNum, VPos.CENTER); // To align vertically in the cell
 			
-	        Label speedL = new Label("Speed: ");
-	        grid.add(speedL, 1, 23);
-	        GridPane.setHalignment(speedL, HPos.LEFT); // To align horizontally in the cell
-			GridPane.setValignment(speedL, VPos.CENTER); // To align vertically in the cell
-	        
-			Button runButt = new Button("Run");
-			GridPane.setHalignment(runButt, HPos.LEFT); // To align horizontally in the cell
-			GridPane.setValignment(runButt, VPos.BOTTOM); // To align vertically in the cell
-	        grid.add(runButt, 13, 23, 1, 1);
-	        
-	        Slider slider = new Slider();
-	        slider.setMin(0);
-	        slider.setMax(10);
-	        slider.setValue(5);
-	        slider.setShowTickLabels(true);
-	        slider.setShowTickMarks(true);
-	        slider.setSnapToTicks(true);
-	        slider.setMajorTickUnit(5);
-	        slider.setMinorTickCount(5);
-	        slider.setBlockIncrement(1);
-	        grid.add(slider, 2, 23, 10, 2);
-			GridPane.setHalignment(slider, HPos.LEFT); // To align horizontally in the cell
-			GridPane.setValignment(slider, VPos.BOTTOM); // To align vertically in the cell
-
 			Button quitButt = new Button("Quit");
 			GridPane.setHalignment(quitButt, HPos.RIGHT); // To align horizontally in the cell
 			GridPane.setValignment(quitButt, VPos.BOTTOM); // To align vertically in the cell
-	        grid.add(quitButt, 15, 0, 1, 1);
+	        grid.add(quitButt, 16, 0, 1, 1);
 	        
 			Button statsButton = new Button("Stats");
 			GridPane.setHalignment(statsButton, HPos.LEFT); // To align horizontally in the cell
 			GridPane.setValignment(statsButton, VPos.BOTTOM); // To align vertically in the cell
 	        grid.add(statsButton, 15, 23, 1, 1);
 	        
+			ObservableList<String> options1 = 
+				    FXCollections.observableArrayList();
+			ComboBox comboBox1 = new ComboBox(options1);
+			grid.add(comboBox1, 5, 23, 10, 1);
+			GridPane.setHalignment(comboBox1, HPos.RIGHT); // To align horizontally in the cell
+			GridPane.setValignment(comboBox1, VPos.BOTTOM); // To align vertically in the cell
+			
+			File[] files1 = new File("./src/assignment5").listFiles();
+			for(File file1: files1){
+				String fileName1 = file1.getName();
+				if(file1.isFile() && fileName1.contains(".java")){
+					try{
+						String[] fName1 = fileName1.split(".java");
+						String packageName1 = Critter.class.getPackage().toString().split(" ")[1];
+						Critter c1 = (Critter) Class.forName(packageName1 + "." + fName1[0]).newInstance();
+						options1.add(fName1[0]);
+					}catch(Exception exception){
+					}
+					
+				}
+			}
+	        
+	        final Text actiontarget4 = new Text();
+	        grid.add(actiontarget4, 0, 0, 10, 1);
+			GridPane.setHalignment(actiontarget4, HPos.CENTER); // To align horizontally in the cell
+			GridPane.setValignment(actiontarget4, VPos.BOTTOM); // To align vertically in the cell
+			
+	        statsButton.setOnAction(new EventHandler<ActionEvent>(){        
+	        
+            @Override
+            public void handle(ActionEvent event) {
+    			actiontarget4.setText("                           ");
+    			try{
+	                if((comboBox1.getValue() != null && 
+	                        !comboBox1.getValue().toString().isEmpty())){
+	                    String type1 = comboBox1.getValue().toString();
+	                    
+						String packageName1 = Critter.class.getPackage().toString().split(" ")[1];
+	                    Critter c1 = (Critter) Class.forName(packageName1 + "." + type1).newInstance();
+	                    statsText.setText(type1);
+	                    c1.Stats();
+	                }
+	                else{
+	                    actiontarget4.setFill(Color.FIREBRICK);
+	                    actiontarget4.setText("Please select type of critters");
+	                }
+	            	comboBox1.getSelectionModel().clearSelection();
+    			}catch(Exception exception){
+    				comboBox1.getSelectionModel().clearSelection();
+				}
+            }
+        });
+	      
 	        buttStep.setOnAction(new EventHandler<ActionEvent>() {
 		       	 
 	            @Override
