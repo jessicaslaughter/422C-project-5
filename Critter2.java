@@ -1,5 +1,5 @@
 /* CRITTERS Main.java
- * EE422C Project 4 submission by
+ * EE422C Project 5 submission by
  * Gina Lu
  * gbl286
  * 16480
@@ -111,6 +111,6 @@ public class Critter2 extends Critter {
 	}
 	
 	@Override
-	public javafx.scene.paint.Color viewFillColor() { return javafx.scene.paint.Color.HONEYDEW; }
+	public javafx.scene.paint.Color viewFillColor() { return javafx.scene.paint.Color.PINK; }
 
 }

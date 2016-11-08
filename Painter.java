@@ -1,3 +1,15 @@
+/* CRITTERS Main.java
+ * EE422C Project 5 submission by
+ * Gina Lu
+ * gbl286
+ * 16480
+ * Jessica Slaughter
+ * jts3329
+ * 16470
+ * Slip days used: <0>
+ * Fall 2016
+ */
+
 package assignment5;
 
 import javafx.scene.paint.*;
