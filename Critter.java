@@ -105,9 +105,11 @@ public abstract class Critter {
 
 		for (Critter c : population) {
 			if (c.x_coord == newX && c.y_coord == newY) {
+				this.energy -= Params.look_energy_cost;
 				return this.toString();
 			}
 		}
+		this.energy -= Params.look_energy_cost;
 		return null;
 	}
 	
