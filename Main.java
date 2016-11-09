@@ -10,10 +10,13 @@
  * Fall 2016
  */
 package assignment5; // cannot be in default package
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.PrintStream;
 import java.util.List;
 
 import javax.crypto.spec.RC2ParameterSpec;
+
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -42,8 +45,19 @@ public class Main extends Application{
 	static GridPane modelGrid = new GridPane();
 	static GridPane statsBox = new GridPane();
 	static int steps =0;
+	static ByteArrayOutputStream OutputString;
+	private static String myPackage;
+	
+	static {
+        myPackage = Critter.class.getPackage().toString().split(" ")[1];
+    }
 	
 	public static void main(String[] args){
+		// Create a stream to hold the output
+        OutputString = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(OutputString);
+        // Tell Java to use the special stream; all console output will be redirected here from now
+        System.setOut(ps);
 		launch(args);
 	}
 	
@@ -74,7 +88,7 @@ public class Main extends Application{
         	statsView.show();
 			
 	        final Text statsText = new Text();
-	        statsBox.add(statsText, 0, 0, 5, 1);
+	        statsBox.add(statsText, 5, 6, 20, 1);
 			GridPane.setHalignment(statsText, HPos.CENTER); // To align horizontally in the cell
 			GridPane.setValignment(statsText, VPos.BOTTOM); // To align vertically in the cell
         	
@@ -269,7 +283,7 @@ public class Main extends Application{
 			}
 	        
 	        final Text actiontarget4 = new Text();
-	        grid.add(actiontarget4, 5, 24, 20, 1);
+	        grid.add(actiontarget4, 0, 0, 10, 1);
 			GridPane.setHalignment(actiontarget4, HPos.CENTER); // To align horizontally in the cell
 			GridPane.setValignment(actiontarget4, VPos.BOTTOM); // To align vertically in the cell
 			
@@ -277,24 +291,20 @@ public class Main extends Application{
 	        
             @Override
             public void handle(ActionEvent event) {
-    			actiontarget4.setText("                           ");
+    			
     			try{
 	                if((comboBox1.getValue() != null && 
 	                        !comboBox1.getValue().toString().isEmpty())){
-	                	List<Critter> crits = null;
 	                    String type1 = comboBox1.getValue().toString();
-        				try {
-        					crits = Critter.getInstances(type1);
-        				}
-        				catch (InvalidCritterException e) {
-        					System.out.println("error processing: " + type1);
-        				}
-        				Class<?> critClass = null;
+	                    List<Critter> crits = null;
+	                    crits = Critter.getInstances(type1);
+	                    Class<?> critClass = null;
         				Class<?>[] types = {List.class};
-						String packageName1 = Critter.class.getPackage().toString().split(" ")[1];
-	    				critClass = Class.forName(packageName1 + "." + type1);
-	    				java.lang.reflect.Method runStats = critClass.getMethod("runStats", types);
-	    				runStats.invoke(critClass, crits);
+	                    critClass = Class.forName(myPackage + "." + type1);
+    					java.lang.reflect.Method runStats = critClass.getMethod("runStats", types);
+    					runStats.invoke(critClass, crits);
+    					
+	                    statsText.setText(OutputString.toString());
 	                }
 	                else{
 	                    actiontarget4.setFill(Color.FIREBRICK);
