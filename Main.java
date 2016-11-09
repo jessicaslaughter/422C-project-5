@@ -11,6 +11,7 @@
  */
 package assignment5; // cannot be in default package
 import java.io.File;
+import java.util.List;
 
 import javax.crypto.spec.RC2ParameterSpec;
 
@@ -73,7 +74,7 @@ public class Main extends Application{
         	statsView.show();
 			
 	        final Text statsText = new Text();
-	        statsBox.add(statsText, 5, 6, 20, 1);
+	        statsBox.add(statsText, 0, 0, 5, 1);
 			GridPane.setHalignment(statsText, HPos.CENTER); // To align horizontally in the cell
 			GridPane.setValignment(statsText, VPos.BOTTOM); // To align vertically in the cell
         	
@@ -268,7 +269,7 @@ public class Main extends Application{
 			}
 	        
 	        final Text actiontarget4 = new Text();
-	        grid.add(actiontarget4, 0, 0, 10, 1);
+	        grid.add(actiontarget4, 5, 24, 20, 1);
 			GridPane.setHalignment(actiontarget4, HPos.CENTER); // To align horizontally in the cell
 			GridPane.setValignment(actiontarget4, VPos.BOTTOM); // To align vertically in the cell
 			
@@ -280,12 +281,20 @@ public class Main extends Application{
     			try{
 	                if((comboBox1.getValue() != null && 
 	                        !comboBox1.getValue().toString().isEmpty())){
+	                	List<Critter> crits = null;
 	                    String type1 = comboBox1.getValue().toString();
-	                    
+        				try {
+        					crits = Critter.getInstances(type1);
+        				}
+        				catch (InvalidCritterException e) {
+        					System.out.println("error processing: " + type1);
+        				}
+        				Class<?> critClass = null;
+        				Class<?>[] types = {List.class};
 						String packageName1 = Critter.class.getPackage().toString().split(" ")[1];
-	                    Critter c1 = (Critter) Class.forName(packageName1 + "." + type1).newInstance();
-	                    statsText.setText(type1);
-	                    c1.Stats();
+	    				critClass = Class.forName(packageName1 + "." + type1);
+	    				java.lang.reflect.Method runStats = critClass.getMethod("runStats", types);
+	    				runStats.invoke(critClass, crits);
 	                }
 	                else{
 	                    actiontarget4.setFill(Color.FIREBRICK);
